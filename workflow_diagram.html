@@ -1,0 +1,256 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cervical Cytology Classification Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        .node {
+            background-color: #ffffff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .node.annotation {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            font-weight: normal;
+            font-size: 14px;
+            margin-left: 20px;
+        }
+        .arrow {
+            position: absolute;
+            border: solid #3b82f6;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 6px;
+            transform: rotate(45deg);
+        }
+        .arrow-down {
+            transform: rotate(45deg);
+        }
+        .arrow-right {
+            transform: rotate(0deg);
+        }
+        .arrow-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+        }
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #1f2937;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        .node:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Cervical Cytology Classification Workflow</h1>
+        <div class="flowchart">
+            <!-- Input Image -->
+            <div class="row">
+                <div class="node" id="input-image">
+                    Input Image
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Cervical cytology image (Pap smear or LBC)
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-container">
+                <i class="arrow arrow-down"></i>
+            </div>
+            <!-- Base Learners -->
+            <div class="row">
+                <div class="node" id="inception">
+                    Inception v3
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Pre-trained CNN for feature extraction
+                    </div>
+                </div>
+                <div class="node" id="xception">
+                    Xception
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Uses depthwise separable convolutions
+                    </div>
+                </div>
+                <div class="node" id="densenet">
+                    DenseNet-169
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Dense connectivity for rich features
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="node annotation">
+                    Generate probability scores for each class
+                </div>
+            </div>
+            <div class="arrow-container">
+                <i class="arrow arrow-down"></i>
+            </div>
+            <!-- Fuzzy Rank Computation -->
+            <div class="row">
+                <div class="node" id="fuzzy-rank">
+                    Fuzzy Rank Computation
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Apply tanh and exp functions to compute ranks
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="node annotation">
+                    R_k^i1 = 1 - tanh((P_k^i - 1)²/2), R_k^i2 = 1 - exp(-(P_k^i - 1)²/2)
+                </div>
+            </div>
+            <div class="arrow-container">
+                <i class="arrow arrow-down"></i>
+            </div>
+            <!-- Rank Score -->
+            <div class="row">
+                <div class="node" id="rank-score">
+                    Rank Score
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Multiply ranks: RS_k^i = R_k^i1 × R_k^i2
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-container">
+                <i class="arrow arrow-down"></i>
+            </div>
+            <!-- Fused Score -->
+            <div class="row">
+                <div class="node" id="fused-score">
+                    Fused Score
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Sum ranks across classifiers: FS_k = Σ RS_k^i
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-container">
+                <i class="arrow arrow-down"></i>
+            </div>
+            <!-- Final Prediction -->
+            <div class="row">
+                <div class="node" id="final-prediction">
+                    Final Prediction
+                    <div class="tooltip" style="top: 50px; left: 50%; transform: translateX(-50%)">
+                        Select class with minimum fused score
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="node annotation">
+                    Class = min(FS_k)
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Add animation on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.style.opacity = '0';
+                    node.style.transform = 'translateY(20px)';
+                    node.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    setTimeout(() => {
+                        node.style.opacity = '1';
+                        node.style.transform = 'translateY(0)';
+                    }, index * 200);
+                }, 0);
+            });
+        });
+    </script>
+</body>
+</html>

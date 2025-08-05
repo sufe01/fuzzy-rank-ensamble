@@ -1,0 +1,155 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cervical Cytology Classification Index</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #ececec 0%, #dcdcdc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .cont {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        .step-card {
+            transition: all 0.4s ease;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(96, 246, 59, 0.534);
+            transform: perspective(1000px) rotateX(0deg);
+            background: white;
+            padding: 15px;
+            cursor: pointer;
+        }
+        .step-card:hover {
+            transform: perspective(1000px) rotateX(5deg) scale(1.05);
+            box-shadow: 0 15px 40px rgba(59, 246, 134, 0.6);
+        }
+        .arrow {
+            font-size: 2.5rem;
+            animation: bounce 1.5s infinite;
+            color: #3b82f6;
+            margin: 20px 0;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(20px); }
+        }
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            text-align: center;
+        }
+        .click-hint {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(135deg, #099773 0%, #43b692 100%);
+            color: white;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body class="">
+    <div class="cont">
+        <div class="header text-white mb-8">
+            <h1 class="text-4xl font-bold">Cervical Cytology Classification Workflow</h1>
+            <p class="text-lg mt-2">Interactive overview as of 01:08 PM PKT, Aug 05, 2025</p>
+        </div>
+        <div class="flex flex-col items-center justify-center">
+            <a href="densenet_diagram.html" class="step-card w-64 text-center">
+                <div class="text-4xl mb-2">🧩</div>
+                <h3 class="font-bold text-xl text-blue-800">DenseNet-169</h3>
+                <p class="text-gray-700 mt-2">Dense connectivity with geometric features</p>
+            </a>
+            <div class="arrow">⬇️</div>
+            <a href="inception_diagram.html" class="step-card w-64 text-center">
+                <div class="text-4xl mb-2">🌟</div>
+                <h3 class="font-bold text-xl text-blue-800">Inception v3</h3>
+                <p class="text-gray-700 mt-2">Multi-scale feature extraction</p>
+            </a>
+            <div class="arrow">⬇️</div>
+            <a href="xception_diagram.html" class="step-card w-64 text-center">
+                <div class="text-4xl mb-2">⚡</div>
+                <h3 class="font-bold text-xl text-blue-800">Xception</h3>
+                <p class="text-gray-700 mt-2">Depthwise separable convolutions</p>
+            </a>
+            <div class="arrow">⬇️</div>
+            <a href="improved_cnn_diagram.html" class="step-card w-64 text-center">
+                <div class="text-4xl mb-2">🔄</div>
+                <h3 class="font-bold text-xl text-blue-800">Improved CNN</h3>
+                <p class="text-gray-700 mt-2">Enhanced modern techniques</p>
+            </a>
+            <div class="arrow">⬇️</div>
+            <a href="workflow_diagram2.html" class="step-card w-64 text-center">
+                <div class="text-4xl mb-2">⚖️</div>
+                <h3 class="font-bold text-xl text-blue-800">Fuzzy Rank Fusion</h3>
+                <p class="text-gray-700 mt-2">Weighted ensemble prediction</p>
+            </a>
+            <div class="arrow">⬇️</div>
+            <div class="step-card w-64 text-center">
+                <div class="text-4xl mb-2">🎯</div>
+                <h3 class="font-bold text-xl text-blue-800">Final Prediction</h3>
+                <p class="text-gray-700 mt-2">5-class cancer classification</p>
+            </div>
+        </div>
+        <div class="click-hint">
+            💡 Go on a page by clicking on a box, and come back by your own Mobile/PC navigation
+        </div>
+    </div>
+</body>
+</html>

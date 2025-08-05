@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensemble Models Flowchart - Horizontal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .flowchart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .ensemble-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        
+        .ensemble-title {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .original-title {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .advanced-title {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+        
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .flow-step {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-left: 5px solid;
+            position: relative;
+        }
+        
+        .input-step {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .processing-step {
+            border-left-color: #007bff;
+            background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%);
+        }
+        
+        .model-step {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        }
+        
+        .fusion-step {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+        
+        .output-step {
+            border-left-color: #6f42c1;
+            background: linear-gradient(135deg, #e2d9f3 0%, #d1c4e9 100%);
+        }
+        
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #6c757d;
+            margin: 5px 0;
+        }
+        
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .advanced-model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .model-box {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #007bff;
+        }
+        
+        .geo-model {
+            border-color: #28a745;
+            color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .non-geo-model {
+            border-color: #fd7e14;
+            color: #fd7e14;
+            background: linear-gradient(135deg, #ffe8cc 0%, #ffd19a 100%);
+        }
+        
+        .weight-indicator {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin: 10px 0;
+            font-size: 0.85em;
+        }
+        
+        .feature-item {
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .flow-step h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .flow-step p {
+            margin: 8px 0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .flowchart-container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            
+            .flow-step {
+                padding: 15px;
+            }
+            
+            .ensemble-title {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="flowchart-container">
+            <!-- Original Ensemble Flowchart -->
+            <div class="ensemble-section">
+                <div class="ensemble-title original-title">
+                    🔵 Original Ensemble
+                </div>
+                
+                <div class="flowchart">
+                    <!-- Input -->
+                    <div class="flow-step input-step">
+                        <h3>📸 Input Data</h3>
+                        <div class="feature-list">
+                            <div class="feature-item">Cervical Cell Images</div>
+                            <div class="feature-item">20 Geometric Features</div>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Feature Processing -->
+                    <div class="flow-step processing-step">
+                        <h3>🔍 Feature Extraction</h3>
+                        <p><strong>Geometric Features:</strong><br>
+                        Area, Perimeter, Eccentricity, Solidity, Texture, Intensity, Gradients</p>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Models -->
+                    <div class="flow-step model-step">
+                        <h3>🤖 Model Training</h3>
+                        <div class="model-grid">
+                            <div class="model-box geo-model">DenseNet<br>+ Geo</div>
+                            <div class="model-box geo-model">Inception<br>+ Geo</div>
+                            <div class="model-box geo-model">Xception<br>+ Geo</div>
+                        </div>
+                        <p><em>All 3 models use geometric features</em></p>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Fusion -->
+                    <div class="flow-step fusion-step">
+                        <h3>⚖️ Fuzzy Rank Fusion</h3>
+                        <p><strong>Weighting Strategy:</strong><br>
+                        Equal weights for all models</p>
+                        <div style="margin-top: 10px; font-size: 0.85em;">
+                            <span>DenseNet</span><span class="weight-indicator">1.0</span><br>
+                            <span>Inception</span><span class="weight-indicator">1.0</span><br>
+                            <span>Xception</span><span class="weight-indicator">1.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Output -->
+                    <div class="flow-step output-step">
+                        <h3>🎯 Final Prediction</h3>
+                        <p>Cancer Classification:<br>
+                        Normal | Dyskeratotic | Koilocytotic | Metaplastic | Parabasal</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advanced Ensemble Flowchart -->
+            <div class="ensemble-section">
+                <div class="ensemble-title advanced-title">
+                    🔴 Advanced Ensemble
+                </div>
+                
+                <div class="flowchart">
+                    <!-- Input -->
+                    <div class="flow-step input-step">
+                        <h3>📸 Input Data</h3>
+                        <div class="feature-list">
+                            <div class="feature-item">Cervical Cell Images</div>
+                            <div class="feature-item">20 Geometric Features</div>
+                            <div class="feature-item">Topological Features</div>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Feature Processing -->
+                    <div class="flow-step processing-step">
+                        <h3>🔍 Multi-Feature Extraction</h3>
+                        <p><strong>Geometric:</strong> Morphology, Texture<br>
+                        <strong>Topological:</strong> Persistent Homology<br>
+                        <strong>Spatial:</strong> Graph-like processing</p>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Models -->
+                    <div class="flow-step model-step">
+                        <h3>🤖 Diverse Model Training</h3>
+                        <div class="advanced-model-grid">
+                            <div class="model-box geo-model">DenseNet<br>+ Geo</div>
+                            <div class="model-box geo-model">Inception<br>+ Geo</div>
+                            <div class="model-box geo-model">Xception<br>+ Geo</div>
+                            <div class="model-box non-geo-model">GCN<br>Enhanced</div>
+                            <div class="model-box non-geo-model">Geometric<br>Transformer</div>
+                            <div class="model-box non-geo-model">Improved<br>CNN</div>
+                        </div>
+                        <p><em>Mix of geometric-enhanced and specialized architectures</em></p>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Fusion -->
+                    <div class="flow-step fusion-step">
+                        <h3>⚖️ Weighted Fuzzy Fusion</h3>
+                        <p><strong>Intelligent Weighting:</strong></p>
+                        <div style="margin-top: 10px; font-size: 0.85em;">
+                            <span>CNN + Geo Models</span><span class="weight-indicator">1.0</span><br>
+                            <span>Specialized Models</span><span class="weight-indicator">1.2</span>
+                        </div>
+                        <p style="margin-top: 8px; font-style: italic; font-size: 0.8em;">Higher trust for geometric models</p>
+                    </div>
+                    
+                    <div class="arrow"></div>
+                    
+                    <!-- Output -->
+                    <div class="flow-step output-step">
+                        <h3>🎯 Enhanced Prediction</h3>
+                        <p>Multi-perspective Classification:<br>
+                        Leveraging architectural diversity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive hover effects
+        document.querySelectorAll('.flow-step').forEach(step => {
+            step.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            step.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Add click effects for model boxes
+        document.querySelectorAll('.model-box').forEach(box => {
+            box.addEventListener('click', function() {
+                this.style.animation = 'pulse 0.6s ease-in-out';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 600);
+            });
+        });
+        
+        // Add CSS animation for pulse effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

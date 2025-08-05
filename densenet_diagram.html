@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DenseNet + Geometric Features Architecture</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ececec 0%, #dcdcdc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .architecture-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .layer-block {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .layer-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .input-layer {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, #e8f8ff 0%, #cdf2ff 100%);
+        }
+
+        .feature-layer {
+            border-color: #ffa726;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe0b2 100%);
+        }
+
+        .dense-layer {
+            border-color: #66bb6a;
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        }
+
+        .fusion-layer {
+            border-color: #ab47bc;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+
+        .output-layer {
+            border-color: #ef5350;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        }
+
+        .layer-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .layer-icon {
+            font-size: 2em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .layer-title h3 {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .layer-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .layer-details {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            border-left: 4px solid #11998e;
+        }
+
+        .layer-details.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            border-left: 4px solid #11998e;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .spec-label {
+            font-weight: 600;
+            color: #11998e;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .spec-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #11998e;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: -15px;
+            width: 30px;
+            height: 10px;
+            background: #11998e;
+            border-radius: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 16px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: #11998e;
+            transform: scale(1.05);
+        }
+
+        .dense-blocks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .dense-block {
+            width: 100px;
+            height: 60px;
+            background: linear-gradient(135deg, #099773 0%, #43b692 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dense-block:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .click-hint {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(135deg, #099773 0%, #43b692 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .layer-block {
+                padding: 20px;
+            }
+            
+            .dense-blocks {
+                gap: 10px;
+            }
+            
+            .dense-block {
+                width: 80px;
+                height: 50px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DenseNet + Geometric Features</h1>
+            <p>Dense Convolutional Network with Geometric Feature Enhancement</p>
+        </div>
+
+        <div class="main-content">
+            <div class="architecture-flow">
+                <!-- Input Layer -->
+                <div class="layer-block input-layer" data-layer="input">
+                    <div class="layer-title">
+                        <div class="layer-icon">📸</div>
+                        <div>
+                            <h3>Input Layer</h3>
+                            <div class="layer-description">Cervical cell images with preprocessing</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Input Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Image Size</div>
+                                <div class="spec-value">224 × 224 × 3</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Data Type</div>
+                                <div class="spec-value">RGB Images</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Normalization</div>
+                                <div class="spec-value">ImageNet Stats</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Augmentation</div>
+                                <div class="spec-value">Rotation, Flip, Zoom</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Feature Extraction -->
+                <div class="layer-block feature-layer" data-layer="features">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔍</div>
+                        <div>
+                            <h3>Geometric Feature Extraction</h3>
+                            <div class="layer-description">20 handcrafted geometric features</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Geometric Features (20 total):</h4>
+                        <div class="feature-grid">
+                            <div class="feature-item">Area</div>
+                            <div class="feature-item">Perimeter</div>
+                            <div class="feature-item">Eccentricity</div>
+                            <div class="feature-item">Solidity</div>
+                            <div class="feature-item">Extent</div>
+                            <div class="feature-item">Convex Area</div>
+                            <div class="feature-item">Equiv Diameter</div>
+                            <div class="feature-item">Major Axis</div>
+                            <div class="feature-item">Minor Axis</div>
+                            <div class="feature-item">Orientation</div>
+                            <div class="feature-item">Mean Intensity</div>
+                            <div class="feature-item">Std Intensity</div>
+                            <div class="feature-item">Skewness</div>
+                            <div class="feature-item">Kurtosis</div>
+                            <div class="feature-item">Contrast</div>
+                            <div class="feature-item">Correlation</div>
+                            <div class="feature-item">Energy</div>
+                            <div class="feature-item">Homogeneity</div>
+                            <div class="feature-item">Entropy</div>
+                            <div class="feature-item">Dissimilarity</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- DenseNet Blocks -->
+                <div class="layer-block dense-layer" data-layer="densenet">
+                    <div class="layer-title">
+                        <div class="layer-icon">🧩</div>
+                        <div>
+                            <h3>DenseNet Architecture</h3>
+                            <div class="layer-description">Dense blocks with skip connections</div>
+                        </div>
+                    </div>
+                    <div class="dense-blocks">
+                        <div class="dense-block">Conv 1</div>
+                        <div class="dense-block">Dense 1</div>
+                        <div class="dense-block">Trans 1</div>
+                        <div class="dense-block">Dense 2</div>
+                        <div class="dense-block">Trans 2</div>
+                        <div class="dense-block">Dense 3</div>
+                        <div class="dense-block">Trans 3</div>
+                        <div class="dense-block">Dense 4</div>
+                        <div class="dense-block">Global Pool</div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>DenseNet-121 Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Growth Rate</div>
+                                <div class="spec-value">32</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Dense Blocks</div>
+                                <div class="spec-value">4 blocks</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Layers per Block</div>
+                                <div class="spec-value">[6, 12, 24, 16]</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Compression</div>
+                                <div class="spec-value">0.5</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Parameters</div>
+                                <div class="spec-value">~8M</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Feature Maps</div>
+                                <div class="spec-value">1024</div>
+                            </div>
+                        </div>
+                        <p><strong>Key Features:</strong> Dense connectivity pattern where each layer receives feature maps from all preceding layers, promoting feature reuse and gradient flow.</p>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Feature Fusion -->
+                <div class="layer-block fusion-layer" data-layer="fusion">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔗</div>
+                        <div>
+                            <h3>Feature Fusion</h3>
+                            <div class="layer-description">Concatenate CNN features with geometric features</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Fusion Strategy:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">CNN Features</div>
+                                <div class="spec-value">1024 dims</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Geometric Features</div>
+                                <div class="spec-value">20 dims</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Fusion Method</div>
+                                <div class="spec-value">Concatenation</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Total Features</div>
+                                <div class="spec-value">1044 dims</div>
+                            </div>
+                        </div>
+                        <p><strong>Enhancement:</strong> Geometric features provide explicit shape and texture information that complements the learned CNN representations.</p>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Output Layer -->
+                <div class="layer-block output-layer" data-layer="output">
+                    <div class="layer-title">
+                        <div class="layer-icon">🎯</div>
+                        <div>
+                            <h3>Classification Head</h3>
+                            <div class="layer-description">Multi-class cervical cancer classification</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Output Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Classes</div>
+                                <div class="spec-value">5 types</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Activation</div>
+                                <div class="spec-value">Softmax</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Loss Function</div>          
+                                <div class="spec-value">Cross Entropy</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Optimizer</div>
+                                <div class="spec-value">Adam</div>
+                            </div>
+                        </div>
+                        <div class="feature-grid" style="margin-top: 15px;">
+                            <div class="feature-item" style="background: #e8f5e8;">Normal</div>
+                            <div class="feature-item" style="background: #fff3e0;">Dyskeratotic</div>
+                            <div class="feature-item" style="background: #e3f2fd;">Koilocytotic</div>
+                            <div class="feature-item" style="background: #fce4ec;">Metaplastic</div>
+                            <div class="feature-item" style="background: #f3e5f5;">Parabasal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="click-hint">
+                💡 Click on any layer block to explore detailed specifications and parameters!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive layer details
+        document.querySelectorAll('.layer-block').forEach(block => {
+            block.addEventListener('click', function() {
+                const details = this.querySelector('.layer-details');
+                const isActive = details.classList.contains('active');
+                
+                // Close all other details
+                document.querySelectorAll('.layer-details').forEach(detail => {
+                    detail.classList.remove('active');
+                });
+                
+                // Toggle current details
+                if (!isActive) {
+                    details.classList.add('active');
+                    this.style.borderWidth = '4px';
+                } else {
+                    this.style.borderWidth = '3px';
+                }
+            });
+
+            // Hover effects
+            block.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+
+            block.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Dense block interactions
+        document.querySelectorAll('.dense-block').forEach((block, index) => {
+            block.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // Create info popup
+                const info = document.createElement('div');
+                info.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 20px;
+                    border-radius: 25px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    max-width: 400px;
+                    text-align: center;
+                `;
+                
+                const blockNames = [
+                    'Initial Convolution: 7×7 conv, stride 2',
+                    'Dense Block 1: 6 layers, 128 feature maps',
+                    'Transition 1: 1×1 conv + 2×2 avg pool',
+                    'Dense Block 2: 12 layers, 256 feature maps',
+                    'Transition 2: 1×1 conv + 2×2 avg pool',
+                    'Dense Block 3: 24 layers, 512 feature maps',
+                    'Transition 3: 1×1 conv + 2×2 avg pool',
+                    'Dense Block 4: 16 layers, 1024 feature maps',
+                    'Global Average Pooling: 7×7 → 1×1'
+                ];
+                
+                info.innerHTML = `
+                    <h3 style="color: #11998e; margin-bottom: 15px;">${this.textContent}</h3>
+                    <p style="margin-bottom: 15px;">${blockNames[index]}</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: linear-gradient(135deg, #099773 0%, #43b692 100%);
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: 600;
+                    ">Close</button>
+                `;
+                
+                document.body.appendChild(info);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (document.body.contains(info)) {
+                        info.remove();
+                    }
+                }, 5000);
+            });
+        });
+
+        // Feature item hover effects
+        document.querySelectorAll('.feature-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.background = 'linear-gradient(135deg, #099773 0%, #43b692 100%)';
+                this.style.color = 'white';
+                this.style.transform = 'scale(1.05) translateY(-2px)';
+            });
+
+            item.addEventListener('mouseleave', function() {
+                this.style.background = 'rgba(255,255,255,0.9)';
+                this.style.color = 'inherit';
+                this.style.transform = 'scale(1) translateY(0)';
+            });
+        });
+
+        // Add floating animation to arrows
+        document.querySelectorAll('.arrow').forEach((arrow, index) => {
+            arrow.style.animation = `float 3s ease-in-out infinite ${index * 0.5}s`;
+        });
+
+        // Add floating keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

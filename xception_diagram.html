@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xception + Geometric Features Architecture</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #ececec 0%, #dcdcdc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .architecture-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .layer-block {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .layer-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .input-layer {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, #e8f8ff 0%, #cdf2ff 100%);
+        }
+
+        .feature-layer {
+            border-color: #ffa726;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe0b2 100%);
+        }
+
+        .xception-layer {
+            border-color: #66bb6a;
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        }
+
+        .fusion-layer {
+            border-color: #ab47bc;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+
+        .output-layer {
+            border-color: #ef5350;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        }
+
+        .layer-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .layer-icon {
+            font-size: 2em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .layer-title h3 {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .layer-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .layer-details {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            border-left: 4px solid #007bff;
+        }
+
+        .layer-details.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .xception-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .xception-block {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .xception-block:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .xception-block h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .separable-conv-demo {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .conv-step {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .conv-step:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .depthwise { border-color: #e74c3c; }
+        .pointwise { border-color: #3498db; }
+
+        .conv-arrow {
+            font-size: 2em;
+            color: #fa709a;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            border-left: 4px solid #007bff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .spec-label {
+            font-weight: 600;
+            color: #007bff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .spec-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+        }
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #11998e;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: -15px;
+            width: 30px;
+            height: 10px;
+            background: #11998e;
+            border-radius: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 16px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: #11998e;
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .click-hint {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 1.1em;
+        }
+
+        .flow-blocks {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-block {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .flow-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .efficiency-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 22px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .comparison-item h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .comparison-item .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .layer-block {
+                padding: 20px;
+            }
+            
+            .separable-conv-demo {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .conv-step {
+                min-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Xception + Geometric Features</h1>
+            <p>Extreme Inception with Depthwise Separable Convolutions</p>
+        </div>
+
+        <div class="main-content">
+            <div class="architecture-flow">
+                <!-- Input Layer -->
+                <div class="layer-block input-layer" data-layer="input">
+                    <div class="layer-title">
+                        <div class="layer-icon">📸</div>
+                        <div>
+                            <h3>Input Layer</h3>
+                            <div class="layer-description">Cervical cell images with preprocessing</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Input Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Image Size</div>
+                                <div class="spec-value">299 × 299 × 3</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Data Type</div>
+                                <div class="spec-value">RGB Images</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Normalization</div>
+                                <div class="spec-value">[-1, 1] Range</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Augmentation</div>
+                                <div class="spec-value">Random Crop, Flip</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Feature Extraction -->
+                <div class="layer-block feature-layer" data-layer="features">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔍</div>
+                        <div>
+                            <h3>Geometric Feature Extraction</h3>
+                            <div class="layer-description">20 handcrafted geometric features</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Geometric Features (20 total):</h4>
+                        <div class="feature-grid">
+                            <div class="feature-item">Area</div>
+                            <div class="feature-item">Perimeter</div>
+                            <div class="feature-item">Eccentricity</div>
+                            <div class="feature-item">Solidity</div>
+                            <div class="feature-item">Extent</div>
+                            <div class="feature-item">Convex Area</div>
+                            <div class="feature-item">Equiv Diameter</div>
+                            <div class="feature-item">Major Axis</div>
+                            <div class="feature-item">Minor Axis</div>
+                            <div class="feature-item">Orientation</div>
+                            <div class="feature-item">Mean Intensity</div>
+                            <div class="feature-item">Std Intensity</div>
+                            <div class="feature-item">Skewness</div>
+                            <div class="feature-item">Kurtosis</div>
+                            <div class="feature-item">Contrast</div>
+                            <div class="feature-item">Correlation</div>
+                            <div class="feature-item">Energy</div>
+                            <div class="feature-item">Homogeneity</div>
+                            <div class="feature-item">Entropy</div>
+                            <div class="feature-item">Dissimilarity</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Xception Architecture -->
+                <div class="layer-block xception-layer" data-layer="xception">
+                    <div class="layer-title">
+                        <div class="layer-icon">⚡</div>
+                        <div>
+                            <h3>Xception Architecture</h3>
+                            <div class="layer-description">Depthwise Separable Convolutions</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Separable Convolution Demo -->
+                    <div class="separable-conv-demo">
+                        <div class="conv-step depthwise">
+                            <h4>🎯 Depthwise Conv</h4>
+                            <p>Spatial filtering<br>per channel</p>
+                        </div>
+                        <div class="conv-arrow">➜</div>
+                        <div class="conv-step pointwise">
+                            <h4>🔗 Pointwise Conv</h4>
+                            <p>1×1 convolution<br>for mixing</p>
+                        </div>
+                    </div>
+
+                    <!-- Xception Blocks -->
+                    <div class="xception-blocks">
+                        <div class="xception-block" data-block="entry">
+                            <h4>🚪 Entry Flow</h4>
+                            <p>Initial feature extraction</p>
+                        </div>
+                        <div class="xception-block" data-block="middle">
+                            <h4>🔄 Middle Flow</h4>
+                            <p>8× repeated blocks</p>
+                        </div>
+                        <div class="xception-block" data-block="exit">
+                            <h4>🚀 Exit Flow</h4>
+                            <p>Final feature maps</p>
+                        </div>
+                    </div>
+
+                    <!-- Flow Blocks -->
+                    <div class="flow-blocks">
+                        <div class="flow-block">Conv 3×3</div>
+                        <div class="flow-block">SepConv</div>
+                        <div class="flow-block">SepConv</div>
+                        <div class="flow-block">MaxPool</div>
+                        <div class="flow-block">Residual</div>
+                    </div>
+
+                    <div class="layer-details">
+                        <h4>Xception Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Total Layers</div>
+                                <div class="spec-value">71 layers</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Parameters</div>
+                                <div class="spec-value">~22.9M</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">SepConv Blocks</div>
+                                <div class="spec-value">36 blocks</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Feature Maps</div>
+                                <div class="spec-value">2048</div>
+                            </div>
+                        </div>
+
+                        <div class="efficiency-comparison">
+                            <div class="comparison-item">
+                                <h4>Standard Conv</h4>
+                                <div class="value">M × N × K²</div>
+                                <p>operations</p>
+                            </div>
+                            <div class="comparison-item">
+                                <h4>Separable Conv</h4>
+                                <div class="value">M × K² + M × N</div>
+                                <p>operations</p>
+                            </div>
+                            <div class="comparison-item">
+                                <h4>Efficiency Gain</h4>
+                                <div class="value">~8-10×</div>
+                                <p>faster</p>
+                            </div>
+                        </div>
+                        
+                        <p><strong>Key Innovation:</strong> Depthwise separable convolutions decouple spatial and channel-wise correlations, dramatically reducing parameters while maintaining performance.</p>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Feature Fusion -->
+                <div class="layer-block fusion-layer" data-layer="fusion">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔗</div>
+                        <div>
+                            <h3>Feature Fusion</h3>
+                            <div class="layer-description">Combine Xception features with geometric features</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Fusion Strategy:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">CNN Features</div>
+                                <div class="spec-value">2048 dims</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Geometric Features</div>
+                                <div class="spec-value">20 dims</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Fusion Method</div>
+                                <div class="spec-value">Concatenation</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Total Features</div>
+                                <div class="spec-value">2068 dims</div>
+                            </div>
+                        </div>
+                        <p><strong>Efficient Enhancement:</strong> Xception's efficient feature extraction combined with explicit geometric measurements provides comprehensive cell analysis with reduced computational cost.</p>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Output Layer -->
+                <div class="layer-block output-layer" data-layer="output">
+                    <div class="layer-title">
+                        <div class="layer-icon">🎯</div>
+                        <div>
+                            <h3>Classification Head</h3>
+                            <div class="layer-description">Multi-class cervical cancer classification</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Output Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Classes</div>
+                                <div class="spec-value">5 types</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Activation</div>
+                                <div class="spec-value">Softmax</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Dropout Rate</div>
+                                <div class="spec-value">0.5</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Optimizer</div>
+                                <div class="spec-value">Adam</div>
+                            </div>
+                        </div>
+                        <div class="feature-grid" style="margin-top: 15px;">
+                            <div class="feature-item" style="background: #e8f5e8;">Normal</div>
+                            <div class="feature-item" style="background: #fff3e0;">Dyskeratotic</div>
+                            <div class="feature-item" style="background: #e3f2fd;">Koilocytotic</div>
+                            <div class="feature-item" style="background: #fce4ec;">Metaplastic</div>
+                            <div class="feature-item" style="background: #f3e5f5;">Parabasal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="click-hint">
+                ⚡ Click on any component to explore Xception's efficient architecture details!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive layer details
+        document.querySelectorAll('.layer-block').forEach(block => {
+            block.addEventListener('click', function() {
+                const details = this.querySelector('.layer-details');
+                const isActive = details.classList.contains('active');
+                
+                // Close all other details
+                document.querySelectorAll('.layer-details').forEach(detail => {
+                    detail.classList.remove('active');
+                });
+                
+                // Toggle current details
+                if (!isActive) {
+                    details.classList.add('active');
+                    this.style.borderWidth = '4px';
+                } else {
+                    this.style.borderWidth = '3px';
+                }
+            });
+
+            // Hover effects
+            block.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+
+            block.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Xception block interactions
+        document.querySelectorAll('.xception-block').forEach(block => {
+            block.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const blockType = this.dataset.block;
+                const blockInfo = {
+                    'entry': {
+                        title: 'Entry Flow',
+                        details: 'Conv2D 32×32 → SepConv 64×64 → SepConv 128×128 with residual connections and downsampling'
+                    },
+                    'middle': {
+                        title: 'Middle Flow (8× Repeated)',
+                        details: 'SepConv 728×728 → SepConv 728×728 → SepConv 728×728 with residual connections, repeated 8 times'
+                    },
+                    'exit': {
+                        title: 'Exit Flow',
+                        details: 'SepConv 728×1024 → SepConv 1024×1024 → SepConv 1536×1536 → SepConv 2048×2048 → GlobalAvgPool'
+                    }
+                };
+                
+                const info = document.createElement('div');
+                info.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 25px;
+                    border-radius: 25px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    max-width: 500px;
+                    text-align: center;
+                    border: 3px solid #fa709a;
+                `;
+                
+                info.innerHTML = `
+                    <h3 style="color: #fa709a; margin-bottom: 15px; font-size: 1.4em;">${blockInfo[blockType].title}</h3>
+                    <p style="margin-bottom: 20px; line-height: 1.6; color: #555;">${blockInfo[blockType].details}</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 1em;
+                    ">Close</button>
+                `;
+                
+                document.body.appendChild(info);
+                
+                setTimeout(() => {
+                    if (document.body.contains(info)) {
+                        info.remove();
+                    }
+                }, 7000);
+            });
+        });
+
+        // Separable convolution demo
+        document.querySelectorAll('.conv-step').forEach(step => {
+            step.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const isDepthwise = this.classList.contains('depthwise');
+                const title = isDepthwise ? 'Depthwise Convolution' : 'Pointwise Convolution';
+                const details = isDepthwise ? 
+                    'Applies a single filter per input channel. Each filter operates on one channel independently, capturing spatial patterns.' :
+                    'Uses 1×1 convolutions to linearly combine the outputs of the depthwise layer, mixing channel information.';
+                
+                alert(`${title}\n\n${details}`);
+            });
+        });
+
+        // Flow block interactions
+        document.querySelectorAll('.flow-block').forEach(block => {
+            block.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const blockName = this.textContent;
+                const blockDetails = {
+                    'Conv 3×3': 'Standard 3×3 convolution for initial feature extraction',
+                    'SepConv': 'Depthwise separable convolution with ReLU and batch normalization',
+                    'MaxPool': 'Maximum pooling for spatial downsampling',
+                    'Residual': 'Skip connection for gradient flow and identity mapping'
+                };
+                
+                alert(`${blockName}\n\n${blockDetails[blockName]}`);
+            });
+        });
+
+        // Efficiency comparison interactions
+        document.querySelectorAll('.comparison-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const title = this.querySelector('h4').textContent;
+                const details = {
+                    'Standard Conv': 'Computational complexity: M output channels × N input channels × K² kernel size',
+                    'Separable Conv': 'Depthwise: M × K² + Pointwise: M × N. Total: M × K² + M × N',
+                    'Efficiency Gain': 'Reduction factor: (K² + N) / (K² × N) ≈ 1/N + 1/K² for large N,K'
+                };
+                
+                alert(`${title}\n\n${details[title]}`);
+            });
+        });
+
+        // Add floating animation to arrows
+        document.querySelectorAll('.arrow').forEach((arrow, index) => {
+            arrow.style.animation = `float 3s ease-in-out infinite ${index * 0.5}s`;
+        });
+
+        // Add floating keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Feature item hover effects
+        document.querySelectorAll('.feature-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) translateY(-2px)';
+            });
+
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improved CNN Architecture</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ececec 0%, #dcdcdc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .architecture-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .layer-block {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .layer-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .input-layer {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, #e8f8ff 0%, #cdf2ff 100%);
+        }
+
+        .conv-layer {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, #ffe8e8 0%, #ffcdcd 100%);
+        }
+
+        .improvement-layer {
+            border-color: #4ecdc4;
+            background: linear-gradient(135deg, #e8fffe 0%, #c7fffe 100%);
+        }
+
+        .pooling-layer {
+            border-color: #45b7d1;
+            background: linear-gradient(135deg, #e8f5ff 0%, #cdeaff 100%);
+        }
+
+        .fc-layer {
+            border-color: #96ceb4;
+            background: linear-gradient(135deg, #e8f8f3 0%, #d1f2e2 100%);
+        }
+
+        .output-layer {
+            border-color: #feca57;
+            background: linear-gradient(135deg, #fff8e8 0%, #ffe8b3 100%);
+        }
+
+        .layer-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .layer-icon {
+            font-size: 2em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .layer-title h3 {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .layer-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .layer-details {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            border-left: 4px solid #007bff;
+        }
+
+        .layer-details.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .conv-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .conv-block {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 22px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .conv-block:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .conv-block h4 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .conv-block p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .improvement-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .improvement-item {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 25px 15px;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .improvement-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        .improvement-item h4 {
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .improvement-item p {
+            font-size: 1em;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            border-left: 4px solid #007bff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .spec-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .spec-label {
+            font-weight: 600;
+            color: #007bff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .spec-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #11998e;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: -15px;
+            width: 30px;
+            height: 10px;
+            background: #11998e;
+            border-radius: 10px;
+        }
+
+        .architecture-visualization {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .arch-block {
+            background: linear-gradient(135deg, #392d69 0%, #b57bee 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .arch-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-item {
+            background: linear-gradient(105deg, #ede342, #ff51eb);
+            color: white;
+            padding: 20px;
+            border-radius: 22px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .click-hint {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 1.1em;
+        }
+
+        .technique-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .technique-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .technique-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .technique-dropout { border-left-color: #e74c3c; }
+        .technique-batch { border-left-color: #3498db; }
+        .technique-augment { border-left-color: #f39c12; }
+        .technique-regular { border-left-color: #9b59b6; }
+
+        .technique-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .technique-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .layer-block {
+                padding: 20px;
+            }
+            
+            .improvement-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .architecture-visualization {
+                /* flex-direction: column; */
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Improved CNN Architecture</h1>
+            <p>Enhanced Convolutional Neural Network with Modern Techniques</p>
+        </div>
+
+        <div class="main-content">
+            <div class="architecture-flow">
+                <!-- Input Layer -->
+                <div class="layer-block input-layer" data-layer="input">
+                    <div class="layer-title">
+                        <div class="layer-icon">📸</div>
+                        <div>
+                            <h3>Input Layer</h3>
+                            <div class="layer-description">Enhanced input preprocessing with augmentation</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Input Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Image Size</div>
+                                <div class="spec-value">224 × 224 × 3</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Data Type</div>
+                                <div class="spec-value">RGB Images</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Normalization</div>
+                                <div class="spec-value">Mean-Std Norm</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Augmentation</div>
+                                <div class="spec-value">Advanced Pipeline</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Convolutional Layers -->
+                <div class="layer-block conv-layer" data-layer="conv">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔄</div>
+                        <div>
+                            <h3>Convolutional Layers</h3>
+                            <div class="layer-description">Multi-scale feature extraction with modern architectures</div>
+                        </div>
+                    </div>
+                    
+                    <div class="conv-blocks">
+                        <div class="conv-block" data-conv="conv1">
+                            <h4>Conv Block 1</h4>
+                            <p>64 filters, 3×3<br>ReLU + BatchNorm</p>
+                        </div>
+                        <div class="conv-block" data-conv="conv2">
+                            <h4>Conv Block 2</h4>
+                            <p>128 filters, 3×3<br>ReLU + BatchNorm</p>
+                        </div>
+                        <div class="conv-block" data-conv="conv3">
+                            <h4>Conv Block 3</h4>
+                            <p>256 filters, 3×3<br>ReLU + BatchNorm</p>
+                        </div>
+                        <div class="conv-block" data-conv="conv4">
+                            <h4>Conv Block 4</h4>
+                            <p>512 filters, 3×3<br>ReLU + BatchNorm</p>
+                        </div>
+                        <div class="conv-block" data-conv="conv5">
+                            <h4>Conv Block 5</h4>
+                            <p>1024 filters, 3×3<br>ReLU + BatchNorm</p>
+                        </div>
+                    </div>
+
+                    <div class="architecture-visualization">
+                        <div class="arch-block">224×224×3</div>
+                        <div class="arch-block">→</div>
+                        <div class="arch-block">112×112×64</div>
+                        <div class="arch-block">→</div>
+                        <div class="arch-block">56×56×128</div>
+                        <div class="arch-block">→</div>
+                        <div class="arch-block">28×28×256</div>
+                        <div class="arch-block">→</div>
+                        <div class="arch-block">14×14×512</div>
+                        <div class="arch-block">→</div>
+                        <div class="arch-block">7×7×1024</div>
+                    </div>
+
+                    <div class="layer-details">
+                        <h4>Convolutional Architecture:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Total Conv Layers</div>
+                                <div class="spec-value">15 layers</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Kernel Size</div>
+                                <div class="spec-value">3×3 uniform</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Activation</div>
+                                <div class="spec-value">ReLU</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Normalization</div>
+                                <div class="spec-value">Batch Norm</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Pooling</div>
+                                <div class="spec-value">MaxPool 2×2</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Parameters</div>
+                                <div class="spec-value">~8.5M</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Improvement Techniques -->
+                <div class="layer-block improvement-layer" data-layer="improvements">
+                    <div class="layer-title">
+                        <div class="layer-icon">⚡</div>
+                        <div>
+                            <h3>Improvement Techniques</h3>
+                            <div class="layer-description">Modern techniques for enhanced performance</div>
+                        </div>
+                    </div>
+                    
+                    <div class="improvement-features">
+                        <div class="improvement-item" data-improvement="dropout">
+                            <h4>🎯 Advanced Dropout</h4>
+                            <p>Spatial and channel dropout with adaptive rates for better regularization</p>
+                        </div>
+                        <div class="improvement-item" data-improvement="batch">
+                            <h4>🔄 Batch Normalization</h4>
+                            <p>Layer-wise normalization for stable training and faster convergence</p>
+                        </div>
+                        <div class="improvement-item" data-improvement="residual">
+                            <h4>🔗 Residual Connections</h4>
+                            <p>Skip connections to prevent vanishing gradients in deep networks</p>
+                        </div>
+                        <div class="improvement-item" data-improvement="attention">
+                            <h4>👁️ Attention Mechanisms</h4>
+                            <p>Channel and spatial attention for focused feature learning</p>
+                        </div>
+                    </div>
+
+                    <div class="technique-showcase">
+                        <div class="technique-card technique-dropout">
+                            <h4>Dropout Strategy</h4>
+                            <p>Progressive dropout rates: 0.2 → 0.3 → 0.5 across layers. Spatial dropout for conv layers, standard dropout for FC layers.</p>
+                        </div>
+                        <div class="technique-card technique-batch">
+                            <h4>Batch Normalization</h4>
+                            <p>Applied after each convolution before activation. Momentum=0.9, eps=1e-5 for stable statistics tracking.</p>
+                        </div>
+                        <div class="technique-card technique-augment">
+                            <h4>Data Augmentation</h4>
+                            <p>Random rotation, horizontal flip, color jittering, cutout, and mixup for robust feature learning.</p>
+                        </div>
+                        <div class="technique-card technique-regular">
+                            <h4>Regularization</h4>
+                            <p>L2 weight decay (1e-4), label smoothing (0.1), and early stopping with patience=10.</p>
+                        </div>
+                    </div>
+
+                    <div class="layer-details">
+                        <h4>Enhancement Details:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Dropout Rates</div>
+                                <div class="spec-value">0.2 - 0.5</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">BatchNorm Momentum</div>
+                                <div class="spec-value">0.9</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Weight Decay</div>
+                                <div class="spec-value">1e-4</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Learning Schedule</div>
+                                <div class="spec-value">Cosine Annealing</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Global Average Pooling -->
+                <div class="layer-block pooling-layer" data-layer="pooling">
+                    <div class="layer-title">
+                        <div class="layer-icon">🌊</div>
+                        <div>
+                            <h3>Global Average Pooling</h3>
+                            <div class="layer-description">Spatial dimension reduction with feature preservation</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>Pooling Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Input Size</div>
+                                <div class="spec-value">7×7×1024</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Operation</div>
+                                <div class="spec-value">Global Average</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Output Size</div>
+                                <div class="spec-value">1×1×1024</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Advantage</div>
+                                <div class="spec-value">No Parameters</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Fully Connected Layers -->
+                <div class="layer-block fc-layer" data-layer="fc">
+                    <div class="layer-title">
+                        <div class="layer-icon">🧠</div>
+                        <div>
+                            <h3>Fully Connected Layers</h3>
+                            <div class="layer-description">Dense layers with regularization for classification</div>
+                        </div>
+                    </div>
+                    <div class="layer-details">
+                        <h4>FC Architecture:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">FC1 Units</div>
+                                <div class="spec-value">512</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">FC2 Units</div>
+                                <div class="spec-value">256</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Activation</div>
+                                <div class="spec-value">ReLU</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Dropout</div>
+                                <div class="spec-value">0.5</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow"></div>
+
+                <!-- Output Layer -->
+                <div class="layer-block output-layer" data-layer="output">
+                    <div class="layer-title">
+                        <div class="layer-icon">🎯</div>
+                        <div>
+                            <h3>Classification Output</h3>
+                            <div class="layer-description">Multi-class cervical cancer classification</div>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">94.2%</div>
+                            <div class="metric-label">Accuracy</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">93.8%</div>
+                            <div class="metric-label">Precision</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">94.1%</div>
+                            <div class="metric-label">Recall</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">93.9%</div>
+                            <div class="metric-label">F1-Score</div>
+                        </div>
+                    </div>
+
+                    <div class="layer-details">
+                        <h4>Output Specifications:</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">Classes</div>
+                                <div class="spec-value">5 types</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Activation</div>
+                                <div class="spec-value">Softmax</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Loss Function</div>
+                                <div class="spec-value">Cross Entropy</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Optimizer</div>
+                                <div class="spec-value">Adam</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="click-hint">
+                🚀 Click on any component to explore the improved CNN architecture details!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive layer details
+        document.querySelectorAll('.layer-block').forEach(block => {
+            block.addEventListener('click', function() {
+                const details = this.querySelector('.layer-details');
+                const isActive = details.classList.contains('active');
+                
+                // Close all other details
+                document.querySelectorAll('.layer-details').forEach(detail => {
+                    detail.classList.remove('active');
+                });
+                
+                // Toggle current details
+                if (!isActive) {
+                    details.classList.add('active');
+                    this.style.borderWidth = '4px';
+                } else {
+                    this.style.borderWidth = '3px';
+                }
+            });
+
+            // Hover effects
+            block.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+
+            block.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Convolutional block interactions
+        document.querySelectorAll('.conv-block').forEach(block => {
+            block.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const convType = this.dataset.conv;
+                const convInfo = {
+                    'conv1': {
+                        title: 'First Convolutional Block',
+                        details: 'Input: 224×224×3 → Conv 64×3×3 → BatchNorm → ReLU → MaxPool → Output: 112×112×64'
+                    },
+                    'conv2': {
+                        title: 'Second Convolutional Block',
+                        details: 'Input: 112×112×64 → Conv 128×3×3 → BatchNorm → ReLU → MaxPool → Output: 56×56×128'
+                    },
+                    'conv3': {
+                        title: 'Third Convolutional Block',
+                        details: 'Input: 56×56×128 → Conv 256×3×3 → BatchNorm → ReLU → MaxPool → Output: 28×28×256'
+                    },
+                    'conv4': {
+                        title: 'Fourth Convolutional Block',
+                        details: 'Input: 28×28×256 → Conv 512×3×3 → BatchNorm → ReLU → MaxPool → Output: 14×14×512'
+                    },
+                    'conv5': {
+                        title: 'Fifth Convolutional Block',
+                        details: 'Input: 14×14×512 → Conv 1024×3×3 → BatchNorm → ReLU → MaxPool → Output: 7×7×1024'
+                    }
+                };
+                
+                const info = document.createElement('div');
+                info.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 25px;
+                    border-radius: 15px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    max-width: 500px;
+                    text-align: center;
+                    border: 3px solid #ff6b6b;
+                `;
+                
+                info.innerHTML = `
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px; font-size: 1.4em;">${convInfo[convType].title}</h3>
+                    <p style="margin-bottom: 20px; line-height: 1.6; color: #555;">${convInfo[convType].details}</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 1em;
+                    ">Close</button>
+                `;
+                
+                document.body.appendChild(info);
+                
+                setTimeout(() => {
+                    if (document.body.contains(info)) {
+                        info.remove();
+                    }
+                }, 7000);
+            });
+        });
+
+        // Improvement features interactions
+        document.querySelectorAll('.improvement-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const improvementType = this.dataset.improvement;
+                const improvementInfo = {
+                    'dropout': {
+                        title: 'Advanced Dropout Strategy',
+                        details: 'Progressive dropout rates increase through network depth. Spatial dropout for convolutional layers preserves spatial structure while reducing overfitting. Adaptive rates based on validation performance.'
+                    },
+                    'batch': {
+                        title: 'Batch Normalization',
+                        details: 'Applied after each convolution before activation function. Normalizes layer inputs to have zero mean and unit variance. Includes learnable scale and shift parameters for optimal representation.'
+                    },
+                    'residual': {
+                        title: 'Residual Connections',
+                        details: 'Skip connections allow gradients to flow directly through network layers. Helps train deeper networks by mitigating vanishing gradient problem. Identity mappings preserve information flow.'
+                    },
+                    'attention': {
+                        title: 'Attention Mechanisms',
+                        details: 'Channel attention focuses on important feature channels. Spatial attention highlights relevant spatial locations. Combined attention improves feature discrimination and model interpretability.'
+                    }
+                };
+                
+                const info = document.createElement('div');
+                info.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 25px;
+                    border-radius: 15px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    max-width: 500px;
+                    text-align: center;
+                    border: 3px solid #4ecdc4;
+                `;
+                
+                info.innerHTML = `
+                    <h3 style="color: #4ecdc4; margin-bottom: 15px; font-size: 1.4em;">${improvementInfo[improvementType].title}</h3>
+                    <p style="margin-bottom: 20px; line-height: 1.6; color: #555;">${improvementInfo[improvementType].details}</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 1em;
+                    ">Close</button>
+                `;
+                
+                document.body.appendChild(info);
+                
+                setTimeout(() => {
+                    if (document.body.contains(info)) {
+                        info.remove();
+                    }
+                }, 7000);
+            });
+        });
+
+        // Technique card interactions
+        document.querySelectorAll('.technique-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const technique = this.querySelector('h4').textContent;
+                const details = this.querySelector('p').textContent;
+                
+                alert(`${technique}\n\n${details}`);
+            });
+        });
+
+        // Architecture block interactions
+        document.querySelectorAll('.arch-block').forEach(block => {
+            if (block.textContent !== '→') {
+                block.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    const dimensions = this.textContent;
+                    const sizeInfo = {
+                        '224×224×3': 'Input: RGB image with 224×224 resolution, 3 color channels',
+                        '112×112×64': 'After Conv1: Spatial size halved, 64 feature maps extracted',
+                        '56×56×128': 'After Conv2: Spatial size halved again, 128 feature maps',
+                        '28×28×256': 'After Conv3: 256 feature maps, more abstract features',
+                        '14×14×512': 'After Conv4: 512 feature maps, high-level patterns',
+                        '7×7×1024': 'After Conv5: 1024 feature maps, very abstract representations'
+                    };
+                    
+                    if (sizeInfo[dimensions]) {
+                        alert(`${dimensions}\n\n${sizeInfo[dimensions]}`);
+                    }
+                });
+            }
+        });
+
+        // Performance metrics interactions
+        document.querySelectorAll('.metric-item').forEach(metric => {
+            metric.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const metricName = this.querySelector('.metric-label').textContent;
+                const metricValue = this.querySelector('.metric-value').textContent;
+                
+                const metricDetails = {
+                    'Accuracy': 'Overall correctness: (TP + TN) / (TP + TN + FP + FN)',
+                    'Precision': 'Positive prediction accuracy: TP / (TP + FP)',
+                    'Recall': 'True positive detection rate: TP / (TP + FN)',
+                    'F1-Score': 'Harmonic mean of precision and recall: 2 × (Precision × Recall) / (Precision + Recall)'
+                };
+                
+                alert(`${metricName}: ${metricValue}\n\n${metricDetails[metricName]}`);
+            });
+        });
+
+        // Spec item hover effects
+        document.querySelectorAll('.spec-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.borderLeftColor = '#11998e';
+                this.querySelector('.spec-label').style.color = '#11998e';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.borderLeftColor = '#007bff';
+                this.querySelector('.spec-label').style.color = '#007bff';
+            });
+        });
+
+        // Add floating animation to arrows
+        document.querySelectorAll('.arrow').forEach((arrow, index) => {
+            arrow.style.animation = `float 3s ease-in-out infinite ${index * 0.5}s`;
+        });
+
+        // Add floating keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            @keyframes glow {
+                0%, 100% { box-shadow: 0 0 5px rgba(17, 153, 142, 0.5); }
+                50% { box-shadow: 0 0 20px rgba(17, 153, 142, 0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add click animation to all interactive elements
+        document.querySelectorAll('.conv-block, .improvement-item, .arch-block, .metric-item, .technique-card').forEach(element => {
+            element.addEventListener('click', function() {
+                this.style.animation = 'pulse 0.6s ease-in-out';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 600);
+            });
+        });
+
+        // Add pulse animation
+        const pulseStyle = document.createElement('style');
+        pulseStyle.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(pulseStyle);
+
+        // Progressive loading animation for conv blocks
+        setTimeout(() => {
+            document.querySelectorAll('.conv-block').forEach((block, index) => {
+                setTimeout(() => {
+                    block.style.opacity = '0';
+                    block.style.transform = 'translateY(20px)';
+                    block.style.transition = 'all 0.5s ease';
+                    setTimeout(() => {
+                        block.style.opacity = '1';
+                        block.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        }, 1000);
+
+        // Add smooth scroll behavior for long content
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>
