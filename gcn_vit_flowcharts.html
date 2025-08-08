@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCN and Vision Transformer Flowcharts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: white;
+            color: black;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        .flowchart {
+            border: 2px solid black;
+            padding: 20px;
+            background-color: white;
+        }
+        .flowchart h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+        }
+        .flow-step {
+            border: 1px solid black;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            background-color: white;
+            position: relative;
+        }
+        .input-step {
+            background-color: #f0f0f0;
+            border: 2px solid black;
+        }
+        .process-step {
+            border: 1px solid black;
+        }
+        .output-step {
+            background-color: #e0e0e0;
+            border: 2px solid black;
+        }
+        .arrow {
+            text-align: center;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+        .code-ref {
+            font-size: 12px;
+            font-style: italic;
+            color: #666;
+            margin-top: 5px;
+        }
+        .side-by-side {
+            display: flex;
+            gap: 20px;
+        }
+        .side-by-side .flowchart {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .side-by-side {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="side-by-side">
+            <!-- GCN Enhanced Model -->
+            <div class="flowchart">
+                <h2>GCN Enhanced Model Flow</h2>
+                
+                <div class="flow-step input-step">
+                    <strong>Input Image</strong><br>
+                    Shape: (128, 128, 3)
+                    <div class="code-ref">inputs = layers.Input(shape=input_shape)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Conv2D Block 1</strong><br>
+                    64 filters, 3x3 kernel<br>
+                    + BatchNormalization
+                    <div class="code-ref">Conv2D(64, 3) + BatchNormalization</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Conv2D Block 2</strong><br>
+                    64 filters, 3x3 kernel<br>
+                    + BatchNorm + MaxPool2D
+                    <div class="code-ref">Conv2D(64, 3) + MaxPooling2D(2)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Conv2D Block 3</strong><br>
+                    128 filters, 3x3 kernel<br>
+                    + BatchNorm (2 layers)
+                    <div class="code-ref">Conv2D(128, 3) x2 + MaxPooling2D(2)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Reshape for Graph</strong><br>
+                    Convert 2D feature maps<br>
+                    to graph nodes
+                    <div class="code-ref">Reshape((feature_map_size*feature_map_size, 128))</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Attention Mechanism</strong><br>
+                    Simulate graph connections<br>
+                    using attention weights
+                    <div class="code-ref">Dense(1, activation='sigmoid')</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Graph Convolution</strong><br>
+                    Apply attention weights<br>
+                    Element-wise multiplication
+                    <div class="code-ref">Multiply()([x, attention_weights])</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Graph Processing</strong><br>
+                    Dense layer + Dropout<br>
+                    Feature transformation
+                    <div class="code-ref">Dense(64, activation='relu') + Dropout(0.3)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Global Pooling</strong><br>
+                    Aggregate node features<br>
+                    to graph-level representation
+                    <div class="code-ref">GlobalAveragePooling1D()</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Classification Head</strong><br>
+                    Dense(256) + Dropout<br>
+                    Final feature processing
+                    <div class="code-ref">Dense(256, activation='relu') + Dropout(0.3)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step output-step">
+                    <strong>Output</strong><br>
+                    4 classes (Normal, LSIL, HSIL, Carcinoma)<br>
+                    Softmax activation
+                    <div class="code-ref">Dense(num_classes, activation='softmax')</div>
+                </div>
+            </div>
+            
+            <!-- Vision Transformer Model -->
+            <div class="flowchart">
+                <h2>Vision Transformer Flow</h2>
+                
+                <div class="flow-step input-step">
+                    <strong>Input Image</strong><br>
+                    Shape: (128, 128, 3)
+                    <div class="code-ref">inputs = layers.Input(shape=input_shape)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Patch Embedding</strong><br>
+                    Conv2D with 16x16 patches<br>
+                    256-dimensional embeddings
+                    <div class="code-ref">Conv2D(256, patch_size, strides=patch_size)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Reshape Patches</strong><br>
+                    Convert to sequence<br>
+                    of patch embeddings
+                    <div class="code-ref">Reshape((-1, 256))</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Positional Encoding</strong><br>
+                    Add learnable position<br>
+                    embeddings to patches
+                    <div class="code-ref">Embedding(input_dim=num_patches, output_dim=256)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Add Position + Patches</strong><br>
+                    Element-wise addition<br>
+                    patches = patches + positions
+                    <div class="code-ref">patches + positions</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Multi-Head Attention</strong><br>
+                    8 attention heads<br>
+                    Key dimension: 32
+                    <div class="code-ref">MultiHeadAttention(num_heads=8, key_dim=32)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Residual Connection</strong><br>
+                    Add input to attention output<br>
+                    + Layer Normalization
+                    <div class="code-ref">Add()([patches, attention_output]) + LayerNormalization()</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Feed Forward Network</strong><br>
+                    Dense(512) → ReLU → Dense(256)<br>
+                    MLP processing
+                    <div class="code-ref">Dense(512, activation='relu') → Dense(256)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Residual Connection 2</strong><br>
+                    Add attention output to FF output<br>
+                    + Layer Normalization
+                    <div class="code-ref">Add()([attention_output, ff_output]) + LayerNormalization()</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Global Pooling</strong><br>
+                    Average all patch representations<br>
+                    to single vector
+                    <div class="code-ref">GlobalAveragePooling1D()</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step process-step">
+                    <strong>Classification Head</strong><br>
+                    Dense(256) + Dropout<br>
+                    Final processing
+                    <div class="code-ref">Dense(256, activation='relu') + Dropout(0.3)</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="flow-step output-step">
+                    <strong>Output</strong><br>
+                    4 classes (Normal, LSIL, HSIL, Carcinoma)<br>
+                    Softmax activation
+                    <div class="code-ref">Dense(num_classes, activation='softmax')</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Differences Summary -->
+        <div style="border: 2px solid black; padding: 20px; background-color: #f9f9f9;">
+            <h2 style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px;">Key Differences Summary</h2>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1;">
+                    <h3>GCN Enhanced Model:</h3>
+                    <ul>
+                        <li>Uses CNN feature extraction first</li>
+                        <li>Reshapes feature maps into graph nodes</li>
+                        <li>Applies attention as graph connections</li>
+                        <li>Simulates graph convolution operations</li>
+                        <li>Focus: Spatial relationships between features</li>
+                    </ul>
+                </div>
+                <div style="flex: 1;">
+                    <h3>Vision Transformer:</h3>
+                    <ul>
+                        <li>Divides image into fixed-size patches</li>
+                        <li>Treats patches as sequence tokens</li>
+                        <li>Uses self-attention between all patches</li>
+                        <li>Employs positional encoding</li>
+                        <li>Focus: Global patch relationships</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
